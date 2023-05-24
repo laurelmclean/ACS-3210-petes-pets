@@ -61,13 +61,16 @@ module.exports = (app) => {
   // $or operator to match documents that have a name or species that matches the regular expression defined by term
   app.get('/search', (req, res) => {
     term = new RegExp(req.query.term, 'i')
-      Pet.find({
+    const page = req.query.page || 1
+    Pet.paginate(
+      {
         $or: [
           { 'name': term },
           { 'species': term }
         ]
-      }).exec((err, pets) => {
-        res.render('pets-index', { pets: pets });
-      })
+      },
+      { page: page }).then((results) => {
+        res.render('pets-index', { pets: results.docs, pagesCount: results.pages, currentPage: page, term: req.query.term });
+      });
   });
 }
