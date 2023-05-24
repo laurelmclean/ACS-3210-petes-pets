@@ -13,15 +13,15 @@ module.exports = (app) => {
 
   // CREATE PET
   app.post('/pets', (req, res) => {
-    var pet = new Pet(req.body);
-
-    pet.save()
-      .then((pet) => {
-        res.redirect(`/pets/${pet._id}`);
-      })
-      .catch((err) => {
-        // Handle Errors
-      }) ;
+    const pet = new Pet(req.body);
+      pet.save()
+        .then((pet) => {
+          res.send({ pet: pet });
+        })
+        .catch((err) => {
+          // STATUS OF 400 FOR VALIDATIONS
+          res.status(400).send(err.errors);
+        });
   });
 
   // SHOW PET
