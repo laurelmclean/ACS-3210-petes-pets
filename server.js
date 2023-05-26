@@ -4,14 +4,22 @@ if (!process.env.PORT) {
 }
 
 const express = require('express');
+// utility for constructing paths
 const path = require('path');
+// serves a favicon (the small icon visible in a tab)
 const favicon = require('serve-favicon');
+// logs HTTP requests
 const logger = require('morgan');
+// parses https request cookies
 const cookieParser = require('cookie-parser');
+// parse http response bodies
 const bodyParser = require('body-parser');
+// use HTTP verbs that aren't universally supported
 const methodOverride = require('method-override')
 
 const app = express();
+
+app.locals.PUBLIC_STRIPE_API_KEY = process.env.PUBLIC_STRIPE_API_KEY
 
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/local', {
