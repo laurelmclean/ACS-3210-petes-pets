@@ -34,26 +34,23 @@ module.exports = (app) => {
 
   // INDEX PET => index.js
 
-  // SEARCH PET
-  app.get('/search', async (req, res) => {
-    try {
-      term = new RegExp(req.query.term, 'i')
-      const page = req.query.page || 1;
-      const results = await Pet.paginate(
-        {
-          $or: [
-            { 'name': term },
-            { 'species': term }
-          ]
-        },
-        { page: page }
+  // SEARCH
+  app.get('/search', function (req, res) {
+    Pet
+      .find(
+        { $text: { $search: req.query.term } },
+        { score: { $meta: "textScore" } }
       )
-      res.render('pets-index', { pets: results.docs, pagesCount: results.pages, currentPage: page, term: req.query.term });
-    } catch (err) {
-      console.log(err.message);
-      res.status(500);
-    }
-
+      .sort({ score: { $meta: 'textScore' } })
+      .limit(20)
+      .exec(function (err, pets) {
+        if (err) { return res.status(400).send(err) }
+        if (req.header('Content-Type') == 'application/json') {
+          return res.json({ pets: pets });
+        } else {
+          return res.render('pets-index', { pets: pets, term: req.query.term });
+        }
+      });
   });
 
   // NEW PET
